@@ -7,11 +7,16 @@ class KirrUrlManager(models.Manager):
         qs_main = super(KirrUrlManager, self).all(*args, **kwargs)
         qs = qs_main.filter(active=False)
         return qs
-    def refresh_shotcode(self):
+    def refresh_shotcode(self, items=100):
+        print(items)
         qs = KirrUrl.objects.filter(id__gte=1)
+        if items is not None and isinstance(items, int):
+            qs = qs.order_by('-id')[:items]
+
         new_code = 0
         for q in qs:
             q.shotcode = create_shotcode(q)
+            print(q.id)
             q.save()
             new_code += 1
         return "New codes made: {i}".format(i=new_code)
